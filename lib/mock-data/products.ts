@@ -1,0 +1,171 @@
+import type { Product } from "@/lib/types";
+
+export const products: Product[] = [
+  // First Aid Cabinets & Kits — wall-cabinets
+  {
+    slug: "standard-wall-cabinet-25-person",
+    name: "Standard Wall Cabinet — 25 Person",
+    category: "first-aid-cabinets-kits",
+    subcategory: "wall-cabinets",
+    shortDescription: "Lockable steel wall-mount cabinet, ANSI Z308.1 compliant, stocked for up to 25 employees.",
+    description: "A rugged, powder-coated steel cabinet with a hinged door and built-in lock. Comes fully stocked with ANSI Z308.1 Class A supplies to cover a 25-person workplace. The bright-white finish and clearly labeled compartments make it easy to locate supplies in an emergency. Ideal for offices, retail spaces, and light-industrial environments.",
+    image: "https://picsum.photos/seed/wall-cabinet-25/600/400",
+    specs: [
+      { label: "Compliance", value: "ANSI Z308.1 Class A" },
+      { label: "Capacity", value: "Up to 25 persons" },
+      { label: "Material", value: "Powder-coated steel" },
+      { label: "Dimensions", value: '16" W × 20" H × 5" D' },
+      { label: "Locking", value: "Cam lock with 2 keys" },
+      { label: "Mounting", value: "Wall-mount with keyhole slots" },
+    ],
+    faqs: [
+      { question: "Can UniShield restock this cabinet on a scheduled basis?", answer: "Yes. Our restocking service can be scheduled monthly, quarterly, or on a custom cadence. A technician visits your facility, inspects supplies, replaces expired or used items, and documents compliance." },
+      { question: "Is this cabinet OSHA compliant?", answer: "Yes. When stocked per the included contents list it meets OSHA 29 CFR 1910.151 requirements and ANSI Z308.1 Class A standards." },
+    ],
+    complianceTags: ["ANSI Z308.1", "OSHA Compliant"],
+  },
+  {
+    slug: "deluxe-wall-cabinet-50-person",
+    name: "Deluxe Wall Cabinet — 50 Person",
+    category: "first-aid-cabinets-kits",
+    subcategory: "wall-cabinets",
+    shortDescription: "Large steel cabinet with dual-door design, stocked to ANSI Class B for up to 50 employees.",
+    description: "A heavy-duty dual-door steel cabinet designed for medium-to-large workplaces. Stocked to ANSI Z308.1 Class B, it includes advanced wound care, burn treatment, eye irrigation, and CPR supplies. The spacious interior accommodates additional specialty items for high-hazard environments.",
+    image: "https://picsum.photos/seed/wall-cabinet-50/600/400",
+    specs: [
+      { label: "Compliance", value: "ANSI Z308.1 Class B" },
+      { label: "Capacity", value: "Up to 50 persons" },
+      { label: "Material", value: "Powder-coated steel" },
+      { label: "Dimensions", value: '24" W × 28" H × 6" D' },
+      { label: "Locking", value: "Dual cam locks with 4 keys" },
+      { label: "Mounting", value: "Wall-mount with keyhole slots" },
+    ],
+    faqs: [
+      { question: "Does this include eyewash supplies?", answer: "Yes. The Class B kit includes single-use eyewash bottles. For permanent eyewash stations, see our Eye Wash Stations & Supplies category." },
+    ],
+    complianceTags: ["ANSI Z308.1 Class B", "OSHA Compliant"],
+  },
+  // Portable kits
+  {
+    slug: "vehicle-first-aid-kit",
+    name: "Vehicle / Field First Aid Kit",
+    category: "first-aid-cabinets-kits",
+    subcategory: "portable-kits",
+    shortDescription: "Compact, weatherproof kit for company vehicles, field crews, and remote worksites.",
+    description: "A rugged, zip-closure kit built for vehicles and outdoor use. The red nylon case is water-resistant and includes a clear-view interior organizer so responders can find supplies instantly. Contents meet ANSI Z308.1 Class A minimums for mobile applications.",
+    image: "https://picsum.photos/seed/vehicle-kit/600/400",
+    specs: [
+      { label: "Compliance", value: "ANSI Z308.1 Class A" },
+      { label: "Case Material", value: "600D water-resistant nylon" },
+      { label: "Weight", value: "1.8 lbs (stocked)" },
+      { label: "Dimensions", value: '10" W × 7" H × 3" D' },
+    ],
+    faqs: [],
+    complianceTags: ["ANSI Z308.1", "OSHA Compliant"],
+  },
+  // PPE — gloves
+  {
+    slug: "nitrile-exam-gloves-box-100",
+    name: "Nitrile Exam Gloves — Box of 100",
+    category: "ppe",
+    subcategory: "gloves-hand-protection",
+    shortDescription: "Powder-free nitrile gloves, ASTM D6319 tested, available in S/M/L/XL.",
+    description: "Medical-grade powder-free nitrile gloves offering excellent chemical and puncture resistance. Suitable for first aid response, cleaning, and light chemical handling. Latex-free for allergy-sensitive environments. Sold by the box of 100 in four sizes.",
+    image: "https://picsum.photos/seed/nitrile-gloves/600/400",
+    specs: [
+      { label: "Material", value: "Nitrile (latex-free)" },
+      { label: "Standard", value: "ASTM D6319" },
+      { label: "Powder", value: "Powder-free" },
+      { label: "Count", value: "100 per box" },
+      { label: "Sizes", value: "S, M, L, XL" },
+      { label: "AQL", value: "1.5" },
+    ],
+    faqs: [
+      { question: "Are these suitable for bloodborne pathogen response?", answer: "Yes. When used in conjunction with proper training and other PPE, these gloves meet the barrier requirements for bloodborne pathogen exposure control under OSHA 29 CFR 1910.1030." },
+    ],
+    complianceTags: ["ASTM D6319", "OSHA 1910.1030"],
+  },
+  // Eye Wash Stations
+  {
+    slug: "portable-eyewash-station-16-gallon",
+    name: "Portable Eyewash Station — 16 Gallon",
+    category: "eye-wash-stations",
+    subcategory: "portable-stations",
+    shortDescription: "Self-contained 16-gallon eyewash station for areas without plumbing. ANSI Z358.1 compliant.",
+    description: "A fully self-contained portable eyewash station that requires no plumbing. The 16-gallon polypropylene tank provides a 15-minute continuous flush at the ANSI Z358.1 mandated flow rate. Includes dust cover, floor stand, and stainless steel bowl with twin soft-flow heads. Recommended where permanent plumbing is not available.",
+    image: "https://picsum.photos/seed/portable-eyewash/600/400",
+    specs: [
+      { label: "Compliance", value: "ANSI Z358.1" },
+      { label: "Tank Capacity", value: "16 gallons" },
+      { label: "Flow Duration", value: "15 minutes at 0.4 GPM" },
+      { label: "Material", value: "Polypropylene tank, SS bowl" },
+      { label: "Dimensions", value: '18" W × 14" D × 62" H (with stand)' },
+    ],
+    faqs: [
+      { question: "How often does the water need to be changed?", answer: "ANSI Z358.1 recommends flushing and refilling at least weekly to maintain water quality. UniShield's eyewash servicing program handles this automatically on a scheduled basis." },
+    ],
+    complianceTags: ["ANSI Z358.1", "OSHA Compliant"],
+  },
+  // AED
+  {
+    slug: "philips-heartstart-frx-aed",
+    name: "Philips HeartStart FRx AED",
+    category: "aed-supplies",
+    subcategory: "aed-units",
+    shortDescription: "FDA-cleared, shock-advised AED designed for untrained bystanders. Built-in infant/child capability.",
+    description: "The Philips HeartStart FRx is one of the most trusted AEDs in the workplace. Clear voice instructions guide any bystander through the shock-delivery process, and the built-in SMART Pads II with Infant/Child Key allow a single unit to serve your entire workforce. Rugged enough for outdoor environments (IP55 rated).",
+    image: "https://picsum.photos/seed/philips-frx/600/400",
+    specs: [
+      { label: "FDA Clearance", value: "510(k) cleared" },
+      { label: "IP Rating", value: "IP55 (dust and water resistant)" },
+      { label: "Battery Life", value: "4 years standby / 200 shocks" },
+      { label: "Pad Life", value: "2 years" },
+      { label: "Self-Test", value: "Daily, weekly, monthly auto-test" },
+      { label: "Weight", value: "3.5 lbs with battery and pads" },
+    ],
+    faqs: [
+      { question: "Do we need a trained person on staff to use an AED?", answer: "No. AEDs are designed for use by untrained bystanders. However, we strongly recommend pairing your AED with CPR/AED training so employees feel confident in an emergency. UniShield offers on-site training for exactly this purpose." },
+    ],
+    complianceTags: ["FDA Cleared", "OSHA Compliant"],
+  },
+  // Disaster Kits
+  {
+    slug: "office-emergency-kit-25-person",
+    name: "Office Emergency Kit — 25 Person",
+    category: "disaster-survival-kits",
+    subcategory: "office-kits",
+    shortDescription: "72-hour earthquake and disaster preparedness kit for an office team of 25. California OES recommended.",
+    description: "Pre-packaged in a rugged backpack designed for quick grab-and-go use, this kit provides 72 hours of emergency supplies for 25 employees. Includes food bars, water pouches, emergency blankets, first aid, light sources, sanitation supplies, and a comprehensive emergency reference guide. Configured to align with California OES and FEMA preparedness recommendations.",
+    image: "https://picsum.photos/seed/office-emergency-kit/600/400",
+    specs: [
+      { label: "Capacity", value: "25 persons / 72 hours" },
+      { label: "Water Supply", value: "50 × 4.225 oz pouches + 4 L water boxes" },
+      { label: "Food Supply", value: "2,400 cal food bars per person" },
+      { label: "First Aid", value: "ANSI Class A kit included" },
+      { label: "Container", value: "Rolling backpack with shoulder straps" },
+      { label: "Shelf Life", value: "5 years (food/water)" },
+    ],
+    faqs: [
+      { question: "Is this kit required by OSHA?", answer: "OSHA 29 CFR 1910.38 requires employers to have an Emergency Action Plan. While a specific kit isn't mandated, having one is a best practice that supports your plan and demonstrates preparedness." },
+    ],
+    complianceTags: ["OSHA 1910.38", "FEMA Recommended", "California OES"],
+  },
+  // Restocking Supplies
+  {
+    slug: "adhesive-bandage-assortment-box",
+    name: "Adhesive Bandage Assortment — Box of 100",
+    category: "first-aid-restocking-supplies",
+    subcategory: "bandages-dressings",
+    shortDescription: "100-count assortment of latex-free adhesive bandages in four sizes.",
+    description: "A mixed-size box of latex-free adhesive bandages for restocking ANSI-compliant first aid kits. Includes fingertip, knuckle, and standard sizes. Sterile, individually wrapped, and compatible with all standard first aid cabinets.",
+    image: "https://picsum.photos/seed/bandages/600/400",
+    specs: [
+      { label: "Count", value: "100 per box" },
+      { label: "Latex", value: "Latex-free" },
+      { label: "Sterile", value: "Yes, individually wrapped" },
+      { label: "Sizes Included", value: "3/4\", 1\", Fingertip, Knuckle" },
+    ],
+    faqs: [],
+    complianceTags: ["ANSI Z308.1 Compatible"],
+  },
+];
