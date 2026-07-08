@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { industries } from "@/lib/mock-data/industries";
-import { categories } from "@/lib/mock-data/categories";
-import { services } from "@/lib/mock-data/services";
-import { courses } from "@/lib/mock-data/courses";
+import { getIndustry, getIndustrySlugs, getCategories, getServices, getCourses } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -16,7 +13,8 @@ import { breadcrumbSchema } from "@/lib/schema";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return industries.map((i) => ({ industry: i.slug }));
+  const slugs = await getIndustrySlugs();
+  return slugs.map((industry) => ({ industry }));
 }
 
 interface Props {
@@ -25,17 +23,19 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { industry: slug } = await params;
-  const ind = industries.find((i) => i.slug === slug);
+  const ind = await getIndustry(slug);
   if (!ind) return {};
-  return {
-    title: ind.name,
-    description: ind.headline,
-  };
+  return { title: ind.name, description: ind.headline };
 }
 
 export default async function IndustryPage({ params }: Props) {
   const { industry: slug } = await params;
-  const ind = industries.find((i) => i.slug === slug);
+  const [ind, categories, services, courses] = await Promise.all([
+    getIndustry(slug),
+    getCategories(),
+    getServices(),
+    getCourses(),
+  ]);
   if (!ind) notFound();
 
   const relatedCats = categories.filter((c) => ind.relatedProducts.includes(c.slug));
@@ -106,7 +106,6 @@ export default async function IndustryPage({ params }: Props) {
           </div>
         </SectionReveal>
 
-        {/* Related products */}
         {relatedCats.length > 0 && (
           <SectionReveal>
             <section className="mb-12">
@@ -123,7 +122,6 @@ export default async function IndustryPage({ params }: Props) {
           </SectionReveal>
         )}
 
-        {/* Related services */}
         {relatedSvcs.length > 0 && (
           <SectionReveal>
             <section className="mb-12">
@@ -140,7 +138,6 @@ export default async function IndustryPage({ params }: Props) {
           </SectionReveal>
         )}
 
-        {/* Related training */}
         {relatedCourses.length > 0 && (
           <SectionReveal>
             <section>

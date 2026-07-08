@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { faPenToSquare, faEye } from "@fortawesome/free-solid-svg-icons";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteButton } from "../_components/DeleteButton";
 import { TogglePublished } from "../_components/TogglePublished";
+import { IconLink } from "../_components/IconLink";
 
 export const metadata: Metadata = { title: "Blog Posts" };
 export const dynamic = "force-dynamic";
@@ -48,12 +50,14 @@ export default async function BlogAdminPage() {
                 <td className="px-4 py-3 text-ink/60">{post.author}</td>
                 <td className="px-4 py-3 font-mono text-xs text-ink/40">{post.published_at ?? "—"}</td>
                 <td className="px-4 py-3">
-                  <TogglePublished table="blog_posts" id={post.id} current={post.is_published} />
+                  <TogglePublished table="blog_posts" id={post.id} current={post.is_published} paths={[`/blog/${post.slug}`]} />
                 </td>
-                <td className="px-4 py-3 flex gap-2">
-                  <Link href={`/admin/blog/${post.id}`} className="text-xs text-safety-red hover:underline">Edit</Link>
-                  <Link href={`/blog/${post.slug}`} target="_blank" className="text-xs text-ink/40 hover:text-ink transition-colors">View ↗</Link>
-                  <DeleteButton table="blog_posts" id={post.id} label="Post" />
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <IconLink href={`/admin/blog/${post.id}`} icon={faPenToSquare} title="Edit post" className="text-safety-red/60 hover:text-safety-red hover:bg-red-50" />
+                    <IconLink href={`/blog/${post.slug}`} icon={faEye} title="View post" external />
+                    <DeleteButton table="blog_posts" id={post.id} label="Post" paths={[`/blog/${post.slug}`]} />
+                  </div>
                 </td>
               </tr>
             ))}

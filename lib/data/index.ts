@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import type { Category, Course, Service, Industry, BlogPost, Testimonial, Product, FAQ } from "@/lib/types";
 
 // ─── CATEGORIES ──────────────────────────────────────────────
@@ -322,7 +323,7 @@ export async function getCompanyFaqs(): Promise<FAQ[]> {
 // Used by generateStaticParams — falls back to mock data if DB unavailable
 
 export async function getCategorySlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("categories").select("slug");
   if (!data || data.length === 0) {
     const { categories } = await import("@/lib/mock-data");
@@ -332,7 +333,7 @@ export async function getCategorySlugs(): Promise<string[]> {
 }
 
 export async function getProductSlugs(): Promise<{ category: string; product: string }[]> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("products").select("slug, category_slug");
   if (!data || data.length === 0) {
     const { products } = await import("@/lib/mock-data");
@@ -342,7 +343,7 @@ export async function getProductSlugs(): Promise<{ category: string; product: st
 }
 
 export async function getCourseSlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("courses").select("slug");
   if (!data || data.length === 0) {
     const { courses } = await import("@/lib/mock-data");
@@ -352,7 +353,7 @@ export async function getCourseSlugs(): Promise<string[]> {
 }
 
 export async function getServiceSlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("services").select("slug");
   if (!data || data.length === 0) {
     const { services } = await import("@/lib/mock-data");
@@ -362,7 +363,7 @@ export async function getServiceSlugs(): Promise<string[]> {
 }
 
 export async function getIndustrySlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("industries").select("slug");
   if (!data || data.length === 0) {
     const { industries } = await import("@/lib/mock-data");
@@ -372,7 +373,7 @@ export async function getIndustrySlugs(): Promise<string[]> {
 }
 
 export async function getPostSlugs(): Promise<string[]> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("blog_posts").select("slug").eq("is_published", true);
   if (!data || data.length === 0) {
     const { posts } = await import("@/lib/mock-data");

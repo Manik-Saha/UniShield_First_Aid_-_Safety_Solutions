@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { posts } from "@/lib/mock-data/posts";
+import { getPosts } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -13,9 +13,12 @@ export const metadata: Metadata = {
     "OSHA compliance guides, Cal/OSHA updates, and workplace safety resources from the UniShield team.",
 };
 
+export const revalidate = 3600;
+
 const BLOG_CATEGORIES = ["Disaster Preparedness", "Fire Safety", "First Aid", "General", "Safety Training"];
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await getPosts();
   const [featured, ...rest] = posts;
 
   return (
@@ -74,6 +77,10 @@ export default function BlogPage() {
               </div>
             </Link>
           </SectionReveal>
+        )}
+
+        {posts.length === 0 && (
+          <p className="text-ink/50 text-sm text-center py-16">No posts published yet.</p>
         )}
 
         {/* Grid */}

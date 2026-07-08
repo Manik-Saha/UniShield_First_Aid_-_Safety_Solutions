@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { services } from "@/lib/mock-data/services";
+import { getService, getServiceSlugs } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -13,7 +13,8 @@ import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return services.map((s) => ({ service: s.slug }));
+  const slugs = await getServiceSlugs();
+  return slugs.map((service) => ({ service }));
 }
 
 interface Props {
@@ -22,17 +23,14 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { service: slug } = await params;
-  const svc = services.find((s) => s.slug === slug);
+  const svc = await getService(slug);
   if (!svc) return {};
-  return {
-    title: svc.name,
-    description: svc.summary,
-  };
+  return { title: svc.name, description: svc.summary };
 }
 
 export default async function ServiceDetailPage({ params }: Props) {
   const { service: slug } = await params;
-  const svc = services.find((s) => s.slug === slug);
+  const svc = await getService(slug);
   if (!svc) notFound();
 
   const breadcrumbItems = [

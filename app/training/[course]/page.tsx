@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { courses } from "@/lib/mock-data/courses";
+import { getCourse, getCourses, getCourseSlugs } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -14,7 +14,8 @@ import { courseSchema, breadcrumbSchema, faqPageSchema } from "@/lib/schema";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return courses.map((c) => ({ course: c.slug }));
+  const slugs = await getCourseSlugs();
+  return slugs.map((course) => ({ course }));
 }
 
 interface Props {
@@ -23,20 +24,17 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { course: slug } = await params;
-  const course = courses.find((c) => c.slug === slug);
+  const course = await getCourse(slug);
   if (!course) return {};
-  return {
-    title: course.name,
-    description: course.summary,
-  };
+  return { title: course.name, description: course.summary };
 }
 
 export default async function CourseDetailPage({ params }: Props) {
   const { course: slug } = await params;
-  const course = courses.find((c) => c.slug === slug);
+  const [course, allCourses] = await Promise.all([getCourse(slug), getCourses()]);
   if (!course) notFound();
 
-  const related = courses.filter((c) => c.slug !== slug).slice(0, 3);
+  const related = allCourses.filter((c) => c.slug !== slug).slice(0, 3);
 
   const breadcrumbItems = [
     { name: "Home", href: "/" },
@@ -83,14 +81,7 @@ export default async function CourseDetailPage({ params }: Props) {
               </div>
             </div>
             <div className="hidden md:block relative h-56 rounded-lg overflow-hidden">
-              <Image
-                src={course.heroImage}
-                alt={course.name}
-                fill
-                className="object-cover"
-                sizes="50vw"
-                priority
-              />
+              <Image src={course.heroImage} alt={course.name} fill className="object-cover" sizes="50vw" priority />
             </div>
           </div>
         </div>
@@ -114,10 +105,7 @@ export default async function CourseDetailPage({ params }: Props) {
             <ol className="flex flex-col gap-6" aria-label="Course curriculum">
               {course.curriculum.map((item, i) => (
                 <li key={i} className="flex gap-5">
-                  <div
-                    className="shrink-0 w-12 h-12 bg-ink text-white font-mono font-bold text-sm rounded flex items-center justify-center"
-                    aria-hidden="true"
-                  >
+                  <div className="shrink-0 w-12 h-12 bg-ink text-white font-mono font-bold text-sm rounded flex items-center justify-center" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <div className="pt-1">

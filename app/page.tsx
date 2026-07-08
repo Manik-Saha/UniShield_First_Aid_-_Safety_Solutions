@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { categories } from "@/lib/mock-data/categories";
-import { courses } from "@/lib/mock-data/courses";
-import { services } from "@/lib/mock-data/services";
-import { industries } from "@/lib/mock-data/industries";
-import { testimonials } from "@/lib/mock-data/testimonials";
-import { posts } from "@/lib/mock-data/posts";
+import { getCategories, getCourses, getServices, getIndustries, getTestimonials, getPosts } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -25,7 +20,17 @@ const VALUE_POINTS = [
   { headline: "Supplies, restocking & training — one call", body: "Stop coordinating multiple vendors. UniShield handles every layer of your workplace safety program." },
 ];
 
-export default function HomePage() {
+export const revalidate = 3600;
+
+export default async function HomePage() {
+  const [categories, courses, services, industries, testimonials, posts] = await Promise.all([
+    getCategories(),
+    getCourses(),
+    getServices(),
+    getIndustries(),
+    getTestimonials(),
+    getPosts(),
+  ]);
   const recentPosts = posts.slice(0, 3);
 
   return (

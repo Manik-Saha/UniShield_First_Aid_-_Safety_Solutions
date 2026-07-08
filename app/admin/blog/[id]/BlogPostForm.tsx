@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { revalidate } from "@/lib/revalidate";
 
 const CATEGORIES = ["Disaster Preparedness", "Fire Safety", "First Aid", "General", "Safety Training"];
 
@@ -68,6 +69,14 @@ export function BlogPostForm({ post }: BlogPostFormProps) {
 
     setSaving(false);
     if (error) { setError(error.message); return; }
+
+    // Revalidate all blog-related public pages
+    await revalidate([
+      "/blog",
+      `/blog/${payload.slug}`,
+      `/blog/category/${payload.category.toLowerCase().replace(/\s+/g, "-")}`,
+    ]);
+
     router.push("/admin/blog");
     router.refresh();
   }

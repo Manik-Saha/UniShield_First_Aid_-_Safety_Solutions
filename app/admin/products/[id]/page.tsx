@@ -28,14 +28,22 @@ export default async function EditProductPage({ params }: Props) {
     specs = specData ?? [];
   }
 
-  const { data: categories } = await supabase.from("categories").select("slug, name").order("sort_order");
+  const [{ data: categories }, { data: subcategories }] = await Promise.all([
+    supabase.from("categories").select("slug, name").order("sort_order"),
+    supabase.from("subcategories").select("slug, name, category_slug").order("sort_order"),
+  ]);
 
   return (
     <div className="p-8 max-w-3xl">
       <h1 className="font-display font-bold text-2xl text-ink mb-6">
         {isNew ? "New Product" : "Edit Product"}
       </h1>
-      <ProductForm product={product} specs={specs} categories={categories ?? []} />
+      <ProductForm
+        product={product}
+        specs={specs}
+        categories={categories ?? []}
+        subcategories={subcategories ?? []}
+      />
     </div>
   );
 }

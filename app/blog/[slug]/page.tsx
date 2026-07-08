@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { posts } from "@/lib/mock-data/posts";
+import { getPost, getPosts, getPostSlugs } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -12,7 +12,8 @@ import { blogPostSchema, breadcrumbSchema } from "@/lib/schema";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }));
+  const slugs = await getPostSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 interface Props {
@@ -21,7 +22,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getPost(slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -35,10 +36,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
-  const related = posts.filter((p) => post.relatedSlugs.includes(p.slug));
+  // Fetch related posts if slugs are defined
+  const related = post.relatedSlugs?.length
+    ? (await Promise.all(post.relatedSlugs.map((s) => getPost(s)))).filter(Boolean)
+    : [];
 
   const breadcrumbItems = [
     { name: "Home", href: "/" },
@@ -52,7 +56,6 @@ export default async function BlogPostPage({ params }: Props) {
       if (para.startsWith("**") && para.endsWith("**")) {
         return <h3 key={i} className="font-display font-bold text-xl text-ink mt-6 mb-2">{para.replace(/\*\*/g, "")}</h3>;
       }
-      // Handle inline bold
       const parts = para.split(/(\*\*[^*]+\*\*)/g);
       return (
         <p key={i} className="mb-4">
@@ -88,9 +91,11 @@ export default async function BlogPostPage({ params }: Props) {
             <span>·</span>
             <time dateTime={post.publishedAt}>{post.publishedAt}</time>
           </div>
-          <div className="relative h-56 rounded-lg overflow-hidden bg-line">
-            <Image src={post.coverImage} alt={post.title} fill className="object-cover" sizes="700px" priority />
-          </div>
+          {post.coverImage && (
+            <div className="relative h-56 rounded-lg overflow-hidden bg-line">
+              <Image src={post.coverImage} alt={post.title} fill className="object-cover" sizes="700px" priority />
+            </div>
+          )}
         </div>
 
         {/* Body */}
@@ -137,7 +142,7 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="mt-12">
             <h2 className="font-display font-bold text-xl text-ink mb-5">Related Articles</h2>
             <div className="flex flex-col gap-4">
-              {related.map((rp) => (
+              {related.map((rp) => rp && (
                 <Link key={rp.slug} href={`/blog/${rp.slug}`} className="group flex gap-4 bg-white border border-line rounded-lg p-4 hover:shadow-sm transition-all">
                   <div className="relative w-20 h-16 rounded overflow-hidden shrink-0 bg-line">
                     <Image src={rp.coverImage} alt={rp.title} fill className="object-cover" sizes="80px" />

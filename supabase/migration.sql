@@ -19,13 +19,13 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- ─── SUBCATEGORIES ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS subcategories (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug        TEXT NOT NULL,
-  category_id UUID REFERENCES categories(id) ON DELETE CASCADE,
-  name        TEXT NOT NULL,
-  description TEXT,
-  sort_order  INT DEFAULT 0,
-  UNIQUE(slug, category_id)
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug          TEXT NOT NULL,
+  category_slug TEXT REFERENCES categories(slug) ON DELETE CASCADE,
+  name          TEXT NOT NULL,
+  description   TEXT,
+  sort_order    INT DEFAULT 0,
+  UNIQUE(slug, category_slug)
 );
 
 -- ─── PRODUCTS ────────────────────────────────────────────────

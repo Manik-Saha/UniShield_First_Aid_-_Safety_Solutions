@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { services } from "@/lib/mock-data/services";
+import { getServices } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -14,7 +14,11 @@ export const metadata: Metadata = {
     "Scheduled first aid restocking, eyewash servicing, AED maintenance, training management, and fire protection services for SoCal workplaces.",
 };
 
-export default function ServicesPage() {
+export const revalidate = 3600;
+
+export default async function ServicesPage() {
+  const services = await getServices();
+
   return (
     <>
       <JsonLd />
@@ -45,13 +49,7 @@ export default function ServicesPage() {
                 className="group block bg-white rounded-lg border border-line overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
               >
                 <div className="relative h-40 bg-line">
-                  <Image
-                    src={svc.heroImage}
-                    alt={svc.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
+                  <Image src={svc.heroImage} alt={svc.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                 </div>
                 <div className="p-5">
                   <h2 className="font-sans font-semibold text-ink text-base mb-2 group-hover:text-safety-red transition-colors">{svc.name}</h2>
@@ -67,10 +65,7 @@ export default function ServicesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display font-bold text-2xl text-ink mb-3">Bundle multiple services and save</h2>
           <p className="text-ink/60 mb-6 max-w-xl mx-auto">Our Facility Safety Services program combines restocking, eyewash, AED, and training management under one annual contract.</p>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 bg-safety-red hover:bg-red-700 text-white font-semibold px-6 py-3 rounded transition-colors"
-          >
+          <Link href="/contact" className="inline-flex items-center gap-2 bg-safety-red hover:bg-red-700 text-white font-semibold px-6 py-3 rounded transition-colors">
             <Cross size={12} />
             Get a Free Quote
           </Link>

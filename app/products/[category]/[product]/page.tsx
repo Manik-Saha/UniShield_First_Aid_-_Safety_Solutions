@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { categories } from "@/lib/mock-data/categories";
-import { products } from "@/lib/mock-data/products";
+import { getProduct, getProductsByCategory, getCategory, getProductSlugs } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -14,7 +13,7 @@ import { productSchema, breadcrumbSchema, faqPageSchema } from "@/lib/schema";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return products.map((p) => ({ category: p.category, product: p.slug }));
+  return getProductSlugs();
 }
 
 interface Props {
@@ -23,22 +22,22 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { product: slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const product = await getProduct(slug);
   if (!product) return {};
-  return {
-    title: product.name,
-    description: product.shortDescription,
-  };
+  return { title: product.name, description: product.shortDescription };
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { category: catSlug, product: productSlug } = await params;
-  const product = products.find((p) => p.slug === productSlug && p.category === catSlug);
+  const [product, cat, catProducts] = await Promise.all([
+    getProduct(productSlug),
+    getCategory(catSlug),
+    getProductsByCategory(catSlug),
+  ]);
   if (!product) notFound();
 
-  const cat = categories.find((c) => c.slug === catSlug);
   const sub = cat?.subcategories.find((s) => s.slug === product.subcategory);
-  const related = products
+  const related = catProducts
     .filter((p) => p.subcategory === product.subcategory && p.slug !== product.slug)
     .slice(0, 3);
 
@@ -81,6 +80,7 @@ export default async function ProductDetailPage({ params }: Props) {
               ))}
             </div>
             <h1 className="font-display font-extrabold text-3xl md:text-4xl text-ink mb-3">{product.name}</h1>
+            {sub && <p className="font-mono text-xs uppercase tracking-widest text-ink/40 mb-3">{sub.name}</p>}
             <p className="text-ink/70 text-lg leading-relaxed mb-4">{product.shortDescription}</p>
             <p className="text-ink/60 leading-relaxed mb-6">{product.description}</p>
 

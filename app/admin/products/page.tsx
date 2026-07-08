@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { faPenToSquare, faEye } from "@fortawesome/free-solid-svg-icons";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteButton } from "../_components/DeleteButton";
 import { TogglePublished } from "../_components/TogglePublished";
+import { IconLink } from "../_components/IconLink";
 
 export const metadata: Metadata = { title: "Products" };
 export const dynamic = "force-dynamic";
@@ -46,14 +48,16 @@ export default async function ProductsAdminPage() {
                   <p className="font-mono text-xs text-ink/40">{product.slug}</p>
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-ink/60">{product.category_slug}</td>
-                <td className="px-4 py-3 font-mono text-xs text-ink/60">{product.subcategory_slug}</td>
+                <td className="px-4 py-3 font-mono text-xs text-ink/60">{product.subcategory_slug ?? "—"}</td>
                 <td className="px-4 py-3">
-                  <TogglePublished table="products" id={product.id} current={product.is_published} />
+                  <TogglePublished table="products" id={product.id} current={product.is_published} paths={[`/products/${product.category_slug}`, `/products/${product.category_slug}/${product.slug}`]} />
                 </td>
-                <td className="px-4 py-3 flex gap-2">
-                  <Link href={`/admin/products/${product.id}`} className="text-xs text-safety-red hover:underline">Edit</Link>
-                  <Link href={`/products/${product.category_slug}/${product.slug}`} target="_blank" className="text-xs text-ink/40 hover:text-ink transition-colors">View ↗</Link>
-                  <DeleteButton table="products" id={product.id} label="Product" />
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <IconLink href={`/admin/products/${product.id}`} icon={faPenToSquare} title="Edit product" className="text-safety-red/60 hover:text-safety-red hover:bg-red-50" />
+                    <IconLink href={`/products/${product.category_slug}/${product.slug}`} icon={faEye} title="View product" external />
+                    <DeleteButton table="products" id={product.id} label="Product" paths={[`/products/${product.category_slug}`, `/products/${product.category_slug}/${product.slug}`]} />
+                  </div>
                 </td>
               </tr>
             ))}

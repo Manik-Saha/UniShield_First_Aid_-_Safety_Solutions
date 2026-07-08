@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { posts } from "@/lib/mock-data/posts";
+import { getPostsByCategory } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -41,9 +41,7 @@ export default async function BlogCategoryPage({ params }: Props) {
   const cat = BLOG_CATEGORIES.find((c) => c.slug === slug);
   if (!cat) notFound();
 
-  const filtered = posts.filter(
-    (p) => p.category.toLowerCase().replace(/\s+/g, "-") === slug
-  );
+  const posts = await getPostsByCategory(slug);
 
   return (
     <>
@@ -62,11 +60,11 @@ export default async function BlogCategoryPage({ params }: Props) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {filtered.length === 0 ? (
+        {posts.length === 0 ? (
           <p className="text-ink/50 text-sm">No posts in this category yet.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((post) => (
+            {posts.map((post) => (
               <SectionReveal key={post.slug}>
                 <Link
                   href={`/blog/${post.slug}`}

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { industries } from "@/lib/mock-data/industries";
+import { getIndustries } from "@/lib/data";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -12,7 +12,11 @@ export const metadata: Metadata = {
     "UniShield serves offices, schools, restaurants, medical practices, shops, factories, and the film industry across Southern California.",
 };
 
-export default function WhoWeHelpPage() {
+export const revalidate = 3600;
+
+export default async function WhoWeHelpPage() {
+  const industries = await getIndustries();
+
   return (
     <>
       <JsonLd />

@@ -1,23 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { revalidate } from "@/lib/revalidate";
 
 interface Spec { id?: string; label: string; value: string; sort_order: number; }
 interface Category { slug: string; name: string; }
+interface Subcategory { slug: string; name: string; category_slug: string; }
 
 interface ProductFormProps {
   product: Record<string, unknown> | null;
   specs: Spec[];
   categories: Category[];
+  subcategories: Subcategory[];
 }
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-export function ProductForm({ product, specs: initSpecs, categories }: ProductFormProps) {
+export function ProductForm({ product, specs: initSpecs, categories, subcategories }: ProductFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +40,46 @@ export function ProductForm({ product, specs: initSpecs, categories }: ProductFo
   const [specs, setSpecs] = useState<Spec[]>(
     initSpecs.length > 0 ? initSpecs : [{ label: "", value: "", sort_order: 0 }]
   );
+
+  // Subcategories filtered by selected category — start from server-passed data,
+  // then refresh from DB client-side whenever category changes.
+  const [liveSubs, setLiveSubs] = useState<Subcategory[]>(subcategories);
+  const [subsLoading, setSubsLoading] = useState(false);
+
+  const filteredSubs = useMemo(
+    () => liveSubs.filter((s) => s.category_slug === form.category_slug),
+    [liveSubs, form.category_slug]
+  );
+
+  // Refresh subcategories from DB when category changes
+  async function loadSubsForCategory(categorySlug: string) {
+    setSubsLoading(true);
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("subcategories")
+      .select("slug, name, category_slug")
+      .eq("category_slug", categorySlug)
+      .order("sort_order");
+    if (data) {
+      setLiveSubs((prev) => {
+        // Merge: replace entries for this category, keep others
+        const others = prev.filter((s) => s.category_slug !== categorySlug);
+        return [...others, ...data];
+      });
+    }
+    setSubsLoading(false);
+  }
+
+  // Load subs on mount for the initial category
+  useEffect(() => {
+    if (form.category_slug) loadSubsForCategory(form.category_slug);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleCategoryChange(slug: string) {
+    setForm((f) => ({ ...f, category_slug: slug, subcategory_slug: "" }));
+    loadSubsForCategory(slug);
+  }
 
   function addSpec() {
     setSpecs((s) => [...s, { label: "", value: "", sort_order: s.length }]);
@@ -80,6 +123,13 @@ export function ProductForm({ product, specs: initSpecs, categories }: ProductFo
       );
     }
 
+    // Revalidate public product pages
+    await revalidate([
+      "/products",
+      `/products/${form.category_slug}`,
+      `/products/${form.category_slug}/${form.slug}`,
+    ]);
+
     setSaving(false);
     router.push("/admin/products");
     router.refresh();
@@ -95,18 +145,41 @@ export function ProductForm({ product, specs: initSpecs, categories }: ProductFo
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-ink mb-1">Category</label>
-          <select value={form.category_slug} onChange={(e) => setForm((f) => ({ ...f, category_slug: e.target.value }))}
-            className="w-full border border-line rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-safety-red">
+          <select
+            value={form.category_slug}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            className="w-full border border-line rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-safety-red"
+          >
             {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
           </select>
         </div>
-        <Field label="Subcategory Slug" value={form.subcategory_slug} onChange={(v) => setForm((f) => ({ ...f, subcategory_slug: v }))} mono />
+
+        <div>
+          <label className="block text-sm font-semibold text-ink mb-1">
+            Subcategory
+            {subsLoading && <span className="ml-2 text-xs font-normal text-ink/40">Loading…</span>}
+          </label>
+          <select
+            value={form.subcategory_slug}
+            onChange={(e) => setForm((f) => ({ ...f, subcategory_slug: e.target.value }))}
+            disabled={subsLoading}
+            className="w-full border border-line rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-safety-red disabled:opacity-60"
+          >
+            <option value="">— None —</option>
+            {filteredSubs.map((s) => (
+              <option key={s.slug} value={s.slug}>{s.name}</option>
+            ))}
+            {!subsLoading && filteredSubs.length === 0 && (
+              <option disabled value="">No subcategories for this category</option>
+            )}
+          </select>
+        </div>
       </div>
 
       <Field label="Short Description" value={form.short_description} onChange={(v) => setForm((f) => ({ ...f, short_description: v }))} />
       <TextareaField label="Full Description" value={form.description} onChange={(v) => setForm((f) => ({ ...f, description: v }))} />
       <Field label="Image URL" value={form.image} onChange={(v) => setForm((f) => ({ ...f, image: v }))} />
-      <Field label="Compliance Tags (comma-separated)" value={form.compliance_tags} onChange={(v) => setForm((f) => ({ ...f, compliance_tags: v }))} mono />
+      <Field label="Compliance Tags (comma-separated, e.g. OSHA, ANSI)" value={form.compliance_tags} onChange={(v) => setForm((f) => ({ ...f, compliance_tags: v }))} mono />
 
       {/* Specs */}
       <div>
@@ -118,10 +191,10 @@ export function ProductForm({ product, specs: initSpecs, categories }: ProductFo
           {specs.map((spec, i) => (
             <div key={i} className="flex gap-2 items-center">
               <input value={spec.label} onChange={(e) => updateSpec(i, "label", e.target.value)}
-                placeholder="Label" className="flex-1 border border-line rounded px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-safety-red" />
+                placeholder="Label (e.g. Weight)" className="flex-1 border border-line rounded px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-safety-red" />
               <input value={spec.value} onChange={(e) => updateSpec(i, "value", e.target.value)}
-                placeholder="Value" className="flex-2 border border-line rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-safety-red" />
-              <button onClick={() => removeSpec(i)} className="text-ink/30 hover:text-safety-red transition-colors text-lg leading-none">×</button>
+                placeholder="Value (e.g. 2.5 lbs)" className="flex-[2] border border-line rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-safety-red" />
+              <button onClick={() => removeSpec(i)} className="text-ink/30 hover:text-safety-red transition-colors text-lg leading-none px-1">×</button>
             </div>
           ))}
         </div>

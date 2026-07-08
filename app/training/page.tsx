@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { courses } from "@/lib/mock-data/courses";
+import { getCourses } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -14,7 +14,11 @@ export const metadata: Metadata = {
     "On-site, instructor-led safety training for SoCal workplaces. CPR/AED, OSHA compliance, active shooter, forklift, and 10 more courses delivered at your facility.",
 };
 
-export default function TrainingPage() {
+export const revalidate = 3600;
+
+export default async function TrainingPage() {
+  const courses = await getCourses();
+
   return (
     <>
       <JsonLd />

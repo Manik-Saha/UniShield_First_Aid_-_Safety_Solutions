@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { categories } from "@/lib/mock-data/categories";
+import { getCategories } from "@/lib/data";
 import { SafetyTag } from "@/components/SafetyTag";
 import { Cross } from "@/components/Cross";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -14,7 +14,11 @@ export const metadata: Metadata = {
     "OSHA and ANSI-compliant first aid cabinets, PPE, eyewash stations, AEDs, and disaster kits. Quote-based pricing for SoCal businesses.",
 };
 
-export default function ProductsPage() {
+export const revalidate = 3600;
+
+export default async function ProductsPage() {
+  const categories = await getCategories();
+
   return (
     <>
       <JsonLd />
