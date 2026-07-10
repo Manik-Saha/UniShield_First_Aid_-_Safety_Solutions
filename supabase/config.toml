@@ -1,0 +1,5 @@
+[project]
+id = "hyispjmpwyzwsayuuser"
+
+[functions.auto-blog]
+verify_jwt = false

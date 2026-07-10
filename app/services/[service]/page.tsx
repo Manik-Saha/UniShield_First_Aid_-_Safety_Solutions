@@ -8,7 +8,8 @@ import { Cross } from "@/components/Cross";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { SectionReveal } from "@/components/SectionReveal";
 import { JsonLd } from "@/components/JsonLd";
-import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
+import { serviceSchema, breadcrumbSchema, faqPageSchema } from "@/lib/schema";
+import { FaqAccordion } from "@/components/FaqAccordion";
 
 export const revalidate = 3600;
 
@@ -43,6 +44,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     <>
       <JsonLd schema={serviceSchema(svc)} />
       <JsonLd schema={breadcrumbSchema(breadcrumbItems)} />
+      {svc.faqs.length > 0 && <JsonLd schema={faqPageSchema(svc.faqs)} />}
 
       <div className="bg-ink py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -101,6 +103,15 @@ export default async function ServiceDetailPage({ params }: Props) {
             </div>
           </div>
         </SectionReveal>
+
+        {svc.faqs.length > 0 && (
+          <SectionReveal>
+            <div className="mt-14">
+              <h2 className="font-display font-bold text-2xl text-ink mb-6">Frequently Asked Questions</h2>
+              <FaqAccordion faqs={svc.faqs} />
+            </div>
+          </SectionReveal>
+        )}
       </div>
     </>
   );

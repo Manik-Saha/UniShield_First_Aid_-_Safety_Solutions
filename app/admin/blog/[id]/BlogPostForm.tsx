@@ -34,6 +34,9 @@ export function BlogPostForm({ post }: BlogPostFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingPost, setGeneratingPost] = useState(false);
+  const [linkingPosts, setLinkingPosts] = useState(false);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     slug: post?.slug ?? "",
@@ -54,6 +57,44 @@ export function BlogPostForm({ post }: BlogPostFormProps) {
       title,
       slug: post?.slug ? f.slug : slugify(title),
     }));
+  }
+
+  async function handleGeneratePost() {
+    if (!form.title) { setAiMessage("Enter a title/topic first."); return; }
+    setGeneratingPost(true);
+    setAiMessage(null);
+    const res = await fetch("/api/ai/generate-blog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: form.title, category: form.category }),
+    });
+    const json = await res.json();
+    setGeneratingPost(false);
+    if (!res.ok) { setAiMessage(`Error: ${json.error}`); return; }
+    const p = json.post;
+    setForm((f) => ({
+      ...f,
+      title: p.title ?? f.title,
+      slug: post?.slug ? f.slug : (p.slug ?? f.slug),
+      excerpt: p.excerpt ?? f.excerpt,
+      body: p.body ?? f.body,
+    }));
+    setAiMessage("Blog post generated — review and save when ready.");
+  }
+
+  async function handleAutoLink() {
+    if (!post?.id) { setAiMessage("Save the post first before auto-linking."); return; }
+    setLinkingPosts(true);
+    setAiMessage(null);
+    const res = await fetch("/api/ai/link-posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId: post.id }),
+    });
+    const json = await res.json();
+    setLinkingPosts(false);
+    if (!res.ok) { setAiMessage(`Error: ${json.error}`); return; }
+    setAiMessage(`Auto-linked to: ${(json.relatedSlugs as string[]).join(", ") || "no posts found"}`);
   }
 
   async function handleSave(publish: boolean) {
@@ -99,6 +140,31 @@ export function BlogPostForm({ post }: BlogPostFormProps) {
       <Field label="Cover Image URL" value={form.cover_image} onChange={(v) => setForm((f) => ({ ...f, cover_image: v }))} />
       <TextareaField label="Excerpt" value={form.excerpt} onChange={(v) => setForm((f) => ({ ...f, excerpt: v }))} rows={2} />
       <TextareaField label="Body (plain text or Markdown)" value={form.body} onChange={(v) => setForm((f) => ({ ...f, body: v }))} rows={16} mono />
+
+      {/* AI Tools */}
+      <div className="border border-line rounded-lg p-4 bg-surface/40">
+        <p className="text-sm font-semibold text-ink mb-3">AI Tools</p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleGeneratePost}
+            disabled={generatingPost || linkingPosts}
+            className="text-xs bg-ink text-white hover:bg-ink/80 disabled:opacity-60 px-3 py-1.5 rounded transition-colors"
+          >
+            {generatingPost ? "Generating…" : "✨ Generate Post with AI"}
+          </button>
+          <button
+            type="button"
+            onClick={handleAutoLink}
+            disabled={generatingPost || linkingPosts}
+            className="text-xs bg-surface border border-line hover:border-ink/40 text-ink disabled:opacity-60 px-3 py-1.5 rounded transition-colors"
+          >
+            {linkingPosts ? "Linking…" : "🔗 Auto-link Related Posts"}
+          </button>
+        </div>
+        {aiMessage && <p className="text-xs text-ink/60 mt-2">{aiMessage}</p>}
+        <p className="text-xs text-ink/40 mt-1">Generate: fills title, slug, excerpt, body from your topic. Auto-link: finds and saves related posts.</p>
+      </div>
 
       {error && <p className="text-sm text-safety-red" role="alert">{error}</p>}
 

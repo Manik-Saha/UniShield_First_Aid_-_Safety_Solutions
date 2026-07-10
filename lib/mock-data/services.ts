@@ -15,6 +15,7 @@ export const services: Service[] = [
       "Expiration date tracking with proactive replacement",
       "No surprise charges — clear, flat-rate service agreement",
     ],
+    faqs: [],
   },
   {
     slug: "eyewash-station-service",
@@ -30,6 +31,7 @@ export const services: Service[] = [
       "Plumbed and portable station service available",
       "Compliance report provided after each visit",
     ],
+    faqs: [],
   },
   {
     slug: "aed-maintenance",
@@ -45,6 +47,7 @@ export const services: Service[] = [
       "Rescue kit resupply (CPR mask, gloves, razor, trauma shears)",
       "All major brands supported (Philips, Zoll, Defibtech, Cardiac Science)",
     ],
+    faqs: [],
   },
   {
     slug: "training-compliance",
@@ -60,6 +63,7 @@ export const services: Service[] = [
       "Coverage for all Cal/OSHA and California-mandated training",
       "Annual compliance summary report for management review",
     ],
+    faqs: [],
   },
   {
     slug: "fire-protection",
@@ -75,6 +79,7 @@ export const services: Service[] = [
       "Inspection tags and compliance documentation",
       "Emergency replacement units available",
     ],
+    faqs: [],
   },
   {
     slug: "facility-services",
@@ -90,5 +95,6 @@ export const services: Service[] = [
       "Priority scheduling during high-demand periods",
       "Annual safety program review with recommendations",
     ],
+    faqs: [],
   },
 ];

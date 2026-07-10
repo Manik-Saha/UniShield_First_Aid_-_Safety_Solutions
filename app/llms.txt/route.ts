@@ -1,12 +1,19 @@
-// llms.txt is an emerging (not-yet-guaranteed) convention for providing AI systems
-// with structured information about a website's content and purpose.
-// See https://llmstxt.org for context.
+// llms.txt is an emerging convention for providing AI systems with structured
+// information about a website's content. See https://llmstxt.org for context.
 
-import { categories } from "@/lib/mock-data/categories";
-import { courses } from "@/lib/mock-data/courses";
-import { services } from "@/lib/mock-data/services";
+import { createStaticClient } from "@/lib/supabase/static";
 
-export function GET() {
+export const revalidate = 86400;
+
+export async function GET() {
+  const supabase = createStaticClient();
+
+  const [{ data: categories }, { data: courses }, { data: services }] = await Promise.all([
+    supabase.from("categories").select("name, description").order("sort_order"),
+    supabase.from("courses").select("name, duration_label, tagline").eq("is_published", true).order("sort_order"),
+    supabase.from("services").select("name, summary").eq("is_published", true).order("sort_order"),
+  ]);
+
   const lines: string[] = [
     "# UniShield First Aid & Safety",
     "",
@@ -26,13 +33,13 @@ export function GET() {
     "3. Deliver on-site safety training courses — instructor-led, delivered at the client's facility",
     "",
     "## Product Categories",
-    ...categories.map((c) => `- ${c.name}: ${c.description}`),
+    ...(categories ?? []).map((c) => `- ${c.name}: ${c.description ?? ""}`),
     "",
     "## Training Courses",
-    ...courses.map((c) => `- ${c.name} (${c.durationLabel}): ${c.tagline}`),
+    ...(courses ?? []).map((c) => `- ${c.name} (${c.duration_label ?? ""}): ${c.tagline ?? ""}`),
     "",
     "## Services",
-    ...services.map((s) => `- ${s.name}: ${s.summary}`),
+    ...(services ?? []).map((s) => `- ${s.name}: ${s.summary ?? ""}`),
     "",
     "## Key URLs",
     "- Products: https://www.socalfirstaid.com/products",

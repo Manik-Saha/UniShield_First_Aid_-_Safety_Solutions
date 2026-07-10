@@ -169,7 +169,8 @@ export async function getService(slug: string): Promise<Service | null> {
     .eq("slug", slug)
     .single();
   if (error || !data) return null;
-  return dbServiceToService(data);
+  const faqs = await getFaqsForEntity("service", slug);
+  return { ...dbServiceToService(data), faqs };
 }
 
 function dbServiceToService(row: Record<string, unknown>): Service {
@@ -180,6 +181,7 @@ function dbServiceToService(row: Record<string, unknown>): Service {
     description: row.description as string ?? "",
     heroImage: row.hero_image as string ?? "",
     bullets: (row.bullets as string[]) ?? [],
+    faqs: [],
   };
 }
 

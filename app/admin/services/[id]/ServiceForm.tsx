@@ -17,6 +17,8 @@ export function ServiceForm({ service }: ServiceFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingFaqs, setGeneratingFaqs] = useState(false);
+  const [faqMessage, setFaqMessage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     slug: (service?.slug as string) ?? "",
@@ -27,6 +29,29 @@ export function ServiceForm({ service }: ServiceFormProps) {
     bullets: ((service?.bullets as string[]) ?? []).join("\n"),
     is_published: (service?.is_published as boolean) ?? true,
   });
+
+  async function handleGenerateFaqs() {
+    if (!form.slug || !form.name) {
+      setFaqMessage("Save the service first (need a slug and name).");
+      return;
+    }
+    setGeneratingFaqs(true);
+    setFaqMessage(null);
+    const res = await fetch("/api/ai/generate-faqs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        entityType: "service",
+        entitySlug: form.slug,
+        entityName: form.name,
+        context: form.summary || form.description,
+      }),
+    });
+    const json = await res.json();
+    setGeneratingFaqs(false);
+    if (!res.ok) { setFaqMessage(`Error: ${json.error}`); return; }
+    setFaqMessage(`Generated ${json.faqs.length} FAQs and saved to database.`);
+  }
 
   async function handleSave(publish: boolean) {
     setSaving(true);
@@ -69,6 +94,23 @@ export function ServiceForm({ service }: ServiceFormProps) {
         rows={5}
         placeholder={"OSHA-compliant training available\nOn-site or remote delivery\nCertificates issued within 24 hours"}
       />
+
+      {/* AI FAQ Generation */}
+      <div className="border border-line rounded-lg p-4 bg-surface/40">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-semibold text-ink">AI-Generated FAQs</p>
+          <button
+            type="button"
+            onClick={handleGenerateFaqs}
+            disabled={generatingFaqs}
+            className="text-xs bg-ink text-white hover:bg-ink/80 disabled:opacity-60 px-3 py-1.5 rounded transition-colors"
+          >
+            {generatingFaqs ? "Generating…" : "✨ Generate FAQs with AI"}
+          </button>
+        </div>
+        {faqMessage && <p className="text-xs text-ink/60 mt-1">{faqMessage}</p>}
+        <p className="text-xs text-ink/40">Generates 5 FAQs and saves them to the database. Save the service first.</p>
+      </div>
 
       {error && <p className="text-sm text-safety-red" role="alert">{error}</p>}
 

@@ -56,6 +56,7 @@ export interface Service {
   description: string;
   heroImage: string;
   bullets: string[];
+  faqs: FAQ[];
 }
 
 export interface Industry {
